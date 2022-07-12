@@ -1,12 +1,11 @@
 const express = require("express");
 const router = express.Router();
+booksData = require("../data/books.json");
 
 //----
 
 router.get("/", (req, res) => {
-  res.send({
-    message: "working",
-  });
+  res.json(booksData);
 });
 
 //----
