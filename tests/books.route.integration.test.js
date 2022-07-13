@@ -8,8 +8,8 @@ app.use(express.json());
 app.use("/api/books", booksRoute);
 
 //tests
-describe("use Integration test to check  access to books", () => {
-  it("Read  GET - api/books - success - books list", async () => {
+describe("Integration test books API", () => {
+  it("Read  GET - api/books - success - get all the books list", async () => {
     const { body, statusCode } = await request(app).get("/api/books");
 
     expect(body).toEqual(
@@ -23,5 +23,26 @@ describe("use Integration test to check  access to books", () => {
     );
 
     expect(statusCode).toBe(200);
+  });
+
+  it("Create POST - api/books - failure - invalid post body", async () => {
+    const { body, statusCode } = await request(app).post("/api/books").send({
+      name: "",
+      author: "adfdsf",
+    });
+
+    expect(statusCode).toBe(400);
+
+    // console.log(body);
+    expect(body).toEqual({
+      errors: [
+        {
+          value: "",
+          msg: "Name is required",
+          param: "name",
+          location: "body",
+        },
+      ],
+    });
   });
 });
