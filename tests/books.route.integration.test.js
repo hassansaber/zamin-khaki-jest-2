@@ -7,10 +7,17 @@ const app = express();
 app.use(express.json());
 app.use("/api/books", booksRoute);
 
-//tests
+// JEST
+jest.mock("../data/books.json", () => [
+  { name: "call of the wild2", author: "louis wilder white", id: 1 },
+  { name: "love like no other", author: "charlie bronson", id: 2 },
+  { name: "dream", author: "jamie phillips", id: 3 },
+]);
+// no {} for json in mocks return
 
-//---GET
+//tests
 describe("Integration test books API", () => {
+  //---GET
   it("Read  GET - api/books - success - get all the books list", async () => {
     const { body, statusCode } = await request(app).get("/api/books");
 
@@ -90,6 +97,30 @@ describe("Integration test books API", () => {
       name: "call of the wild2",
       author: "louis wilder white",
       id: 1,
+    });
+  });
+
+  //----DELETE
+  it("Delete - /api/books/:bookid - failure - can not found book to remove from list ", async () => {
+    const { statusCode, body } = await request(app).delete(
+      "/api/books/1987987"
+    );
+
+    expect(statusCode).toBe(404);
+
+    expect(body).toEqual({
+      error: true,
+      message: "Book not found",
+    });
+  });
+
+  test("Delete - /api/books/:bookid - Success - remove book from list ", async () => {
+    const { statusCode, body } = await request(app).delete("/api/books/1");
+
+    expect(statusCode).toBe(201);
+
+    expect(body).toEqual({
+      message: "Success",
     });
   });
 });

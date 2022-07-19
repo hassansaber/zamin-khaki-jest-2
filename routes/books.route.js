@@ -85,5 +85,31 @@ router.put("/:bookid", (req, res) => {
   res.status(201).json(updatedBook);
 });
 
+router.delete("/:bookid", (req, res) => {
+  const { bookid } = req.params;
+
+  const foundBook = booksData.find((book) => book.id == bookid);
+
+  if (!foundBook) {
+    return res.status(404).send({
+      error: true,
+      message: "Book not found",
+    });
+  }
+
+  const updatedBooks = booksData.filter((book) => book.id != bookid);
+
+  const isSave = save(updatedBooks);
+  if (!isSave) {
+    return res.status(500).json({
+      error: true,
+      message: "could not save book",
+    });
+  }
+
+  res.status(201).json({
+    message: "Success",
+  });
+});
 //----
 module.exports = router;
