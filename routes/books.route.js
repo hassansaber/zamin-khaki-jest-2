@@ -3,6 +3,7 @@ const { check, validationResult } = require("express-validator");
 const router = express.Router();
 booksData = require("../data/books.json");
 
+const { save } = require("../services/save.service");
 //----
 
 router.get("/", (req, res) => {
@@ -23,8 +24,66 @@ router.post(
         errors: errors.array(),
       });
     }
+
+    const { name, author } = req.body;
+    booksData.push({
+      name,
+      author,
+      id: Math.random(),
+    });
+
+    const isSave = save(booksData);
+    if (!isSave) {
+      return res.status(500).json({
+        error: true,
+        message: "could not save book",
+      });
+    }
+
+    res.json({
+      message: "Success",
+    });
   }
 );
+
+router.put("/:bookid", (req, res) => {
+  // req.params is string
+  const { bookid } = req.params;
+  const { name, author } = req.body;
+
+  const foundBook = booksData.find((book) => book.id == bookid);
+
+  if (!foundBook) {
+    return res.status(404).send({
+      error: true,
+      message: "Book not found",
+    });
+  }
+
+  let updatedBook = null;
+  const updatedBooks = booksData.map((book) => {
+    if (book.id == bookid) {
+      updatedBook = {
+        ...book,
+        name,
+        author,
+      };
+
+      return updatedBook;
+    }
+    return book;
+  });
+
+  const isSave = save(updatedBooks);
+  if (!isSave) {
+    return res.status(500).json({
+      error: true,
+      message: "could not save book",
+    });
+  }
+
+  res.status(201).json(updatedBook);
+});
 
 //----
 module.exports = router;
